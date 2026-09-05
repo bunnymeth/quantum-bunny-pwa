@@ -1,0 +1,26 @@
+# Quantum Bunny Web TODO
+
+- [x] 建立不依賴 Expo 的 React／Vite 網頁入口與本機啟動腳本
+- [x] 整合現有目的地、純淨脫質、次元牆與無限明信片資料
+- [x] 製作手機優先、桌面可用的遊戲首頁與量子跳躍互動
+- [x] 製作明信片相簿、旅行日誌、旅行夥伴及次元探索頁
+- [x] 將原創明信片圖片置於適當的網頁資產來源
+- [x] 驗證本機進度、次元突破、各頁瀏覽與 PWA 快取
+- [x] 產生 192px／512px PWA 圖示並儲存可檢視的純網頁版版本
+- [x] PWA 完成交付後，協助使用者確認已安裝 APK 的基本使用方式
+- [x] 使用唯讀 App 專案參考版本核對 PWA 功能，不修改既有 Mobile App
+- [x] 優化 PWA 的預先快取、導航離線回應與資產版本更新策略
+- [x] 模擬斷網並驗證遊戲核心、明信片與本機進度均可順暢使用
+- [x] 確認公開 PWA 網址可存取並以清楚連結提供 Android Chrome 安裝入口
+- [x] 再次喚醒臨時 PWA 預覽服務並確認公開入口可載入
+- [x] 向使用者交付新入口並說明臨時網址的有效性限制
+- [x] 確認臨時 PWA 預覽服務目前狀態
+- [x] 處理臨時網址因服務睡眠、重置或期限而失效的交付問題
+- [x] 向使用者說明可長期使用的穩定方案與臨時入口限制
+- [ ] 確認 GitHub Pages 授權與可用儲存庫
+- [ ] 加入 GitHub Pages 的 base path、正式建置與自動部署設定
+- [ ] 建立並驗證 GitHub Pages 長期網站入口
+- [ ] 交付 GitHub Pages 網址與 Android Chrome 安裝步驟
+- [ ] 建立使用者同意的公開 quantum-bunny-pwa GitHub repository
+- [ ] 推送 PWA 原始碼與 GitHub Pages Actions workflow
+- [ ] 驗證 GitHub Pages 永久網址可載入並交付安裝方式
