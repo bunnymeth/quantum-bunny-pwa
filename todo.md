@@ -24,3 +24,9 @@
 - [ ] 建立使用者同意的公開 quantum-bunny-pwa GitHub repository
 - [ ] 推送 PWA 原始碼與 GitHub Pages Actions workflow
 - [ ] 驗證 GitHub Pages 永久網址可載入並交付安裝方式
+- [x] 建立使用者同意的公開 quantum-bunny-pwa GitHub repository
+- [x] 推送 PWA 原始碼到 GitHub repository
+- [ ] 以 gh-pages 分支直接發布 PWA（避開目前 GitHub App 的 workflow 權限限制）
+- [ ] 驗證 GitHub Pages 永久網址可載入並交付安裝方式
+- [ ] 補回 20 張壓縮明信片與 192／512 PWA 圖示到 public 資產
+- [ ] 重新建置並確認 dist 包含完整離線資產
