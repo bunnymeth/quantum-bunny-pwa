@@ -1,0 +1,17 @@
+{
+  "name": "量子兔兔旅行記",
+  "short_name": "量子兔兔",
+  "description": "收集正能量，跨越次元，帶回無限張旅行明信片。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#17152e",
+  "theme_color": "#17152e",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icons/quantum-bunny.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
