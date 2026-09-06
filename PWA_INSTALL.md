@@ -1,5 +1,13 @@
 # 量子兔兔旅行記 PWA 使用說明
 
+## 永久入口
+
+請使用以下 GitHub Pages 網址開啟遊戲：
+
+**https://bunnymeth.github.io/quantum-bunny-pwa/**
+
+這是公開且持久的網站入口，不依賴沙盒預覽服務；只要 GitHub Pages 保持啟用，就可以從 Android Chrome 重複開啟。
+
 ## 在 Android 手機安裝
 
 1. 用 **Chrome** 開啟交付訊息中的 PWA 網址。
