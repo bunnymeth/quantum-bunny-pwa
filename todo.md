@@ -17,21 +17,21 @@
 - [x] 確認臨時 PWA 預覽服務目前狀態
 - [x] 處理臨時網址因服務睡眠、重置或期限而失效的交付問題
 - [x] 向使用者說明可長期使用的穩定方案與臨時入口限制
-- [ ] 確認 GitHub Pages 授權與可用儲存庫
-- [ ] 加入 GitHub Pages 的 base path、正式建置與自動部署設定
-- [ ] 建立並驗證 GitHub Pages 長期網站入口
-- [ ] 交付 GitHub Pages 網址與 Android Chrome 安裝步驟
+- [x] 確認 GitHub Pages 授權與可用儲存庫
+- [x] 加入 GitHub Pages 的 base path、正式建置與自動部署設定
+- [x] 建立並驗證 GitHub Pages 長期網站入口
+- [x] 交付 GitHub Pages 網址與 Android Chrome 安裝步驟
 - [ ] 建立使用者同意的公開 quantum-bunny-pwa GitHub repository
 - [ ] 推送 PWA 原始碼與 GitHub Pages Actions workflow
 - [ ] 驗證 GitHub Pages 永久網址可載入並交付安裝方式
 - [x] 建立使用者同意的公開 quantum-bunny-pwa GitHub repository
 - [x] 推送 PWA 原始碼到 GitHub repository
-- [ ] 以 gh-pages 分支直接發布 PWA（避開目前 GitHub App 的 workflow 權限限制）
+- [x] 以 gh-pages 分支直接發布 PWA（避開目前 GitHub App 的 workflow 權限限制）
 - [ ] 驗證 GitHub Pages 永久網址可載入並交付安裝方式
-- [ ] 補回 20 張壓縮明信片與 192／512 PWA 圖示到 public 資產
-- [ ] 重新建置並確認 dist 包含完整離線資產
-- [ ] 新增像旅行青蛙的自動旅行：出發後依經過時間在下次開啟時完成旅程
-- [ ] 自動旅行回程結算明信片、旅行次數、日誌與旅行夥伴事件
-- [ ] 新增出發中／預計回程／回來了的介面狀態，並保留手動立即旅行
-- [ ] 驗證自動旅行、重新整理、離線重開與舊有 localStorage 資料相容性
-- [ ] 將自動旅行功能部署至 GitHub Pages 永久網址
+- [x] 補回 20 張壓縮明信片與 192／512 PWA 圖示到 public 資產
+- [x] 重新建置並確認 dist 包含完整離線資產
+- [x] 新增像旅行青蛙的自動旅行：出發後依經過時間在下次開啟時完成旅程
+- [x] 自動旅行回程結算明信片、旅行次數、日誌與旅行夥伴事件
+- [x] 新增出發中／預計回程／回來了的介面狀態，並保留手動立即旅行
+- [x] 驗證自動旅行、重新整理、離線重開與舊有 localStorage 資料相容性
+- [x] 將自動旅行功能部署至 GitHub Pages 永久網址
