@@ -51,7 +51,7 @@ function App() {
     const companion = Math.random() < .35 ? pick(companions) : undefined;
     setState((s) => {
       if (!s.trip || s.trip.startTime !== completedTrip.startTime) return s;
-      return { ...s, trip: null, nextDepartureAt: s.autoTravel ? Date.now() + 5000 : null, totalTrips: s.totalTrips + 1, postcards: [...s.postcards, { id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now() }], journal: [{ id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now(), note: `${destination.name} 的風景像一封慢慢展開的信。兔兔把「${destination.message}」小心寫在日誌裡。`, ...(companion ? { companion } : {}) }, ...s.journal].slice(0, 30), companion: companion ?? null, lore: pick(lore) };
+      return { ...s, trip: null, autoTravel: false, nextDepartureAt: null, totalTrips: s.totalTrips + 1, postcards: [...s.postcards, { id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now() }], journal: [{ id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now(), note: `${destination.name} 的風景像一封慢慢展開的信。兔兔把「${destination.message}」小心寫在日誌裡。`, ...(companion ? { companion } : {}) }, ...s.journal].slice(0, 30), companion: companion ?? null, lore: pick(lore) };
     });
     setToast(`兔兔從 ${destination.name} 帶回一張新明信片！`);
   }, [now, state.trip]);
@@ -73,11 +73,11 @@ function App() {
   const toggleAutoTravel = () => {
     if (state.autoTravel) {
       setState((s) => ({ ...s, autoTravel: false, nextDepartureAt: null }));
-      setToast("自動旅行已暫停，兔兔回家後會等你安排下一趟旅程。");
+      setToast("這一次自動跳躍已取消，兔兔會等你手動安排旅程。 ");
       return;
     }
     setState((s) => ({ ...s, autoTravel: true, autoDimension: dimension, nextDepartureAt: s.trip ? null : Date.now() }));
-    setToast(state.trip ? "自動旅行已開啟，兔兔回家休息後會再次出發。" : "自動旅行已開啟，兔兔準備出發。 ");
+    setToast(state.trip ? "已安排一次自動跳躍，兔兔回家後就會停止。" : "已安排一次自動跳躍，兔兔準備出發。 ");
   };
   const unlock = (target: Exclude<Dimension, "normal">) => {
     const requirement = DIMENSIONS[target].unlock; const prerequisite = target === "cthulhu" || (target === "scp" ? state.walls.cthulhu : state.walls.scp);
@@ -99,7 +99,7 @@ function App() {
       <section className="section-heading"><div><p>旅行控制台</p><h2>選擇下一次跳躍</h2></div><span>{DIMENSIONS[dimension].icon} {DIMENSIONS[dimension].label}</span></section>
       <div className="dimension-chips">{(Object.keys(DIMENSIONS) as Dimension[]).map((item) => <button key={item} className={dimension === item ? `active ${DIMENSIONS[item].tone}` : ""} onClick={() => setDimension(item)} disabled={item !== "normal" && !state.walls[item]}>{DIMENSIONS[item].icon} {DIMENSIONS[item].label}</button>)}</div>
       <button className="leap-button" disabled={!!state.trip} onClick={() => startTrip(dimension)}><span>✦</span><div><b>量子跳躍</b><small>消耗 {DIMENSIONS[dimension].cost} 正能量＋脫質</small></div><i>›</i></button>
-      <article className={`auto-travel-card ${state.autoTravel ? "enabled" : ""}`}><div><p>旅行青蛙模式</p><strong>{state.autoTravel ? "兔兔會自己安排下一趟旅行" : "讓兔兔自己去旅行"}</strong><small>{state.autoTravel ? `回家後休息 5 秒，再前往「${DIMENSIONS[state.autoDimension].label}」` : "離開網站也會保留旅程；回來時可收到明信片"}</small></div><button onClick={toggleAutoTravel}>{state.autoTravel ? "暫停自動旅行" : "開啟自動旅行"}</button></article>
+      <article className={`auto-travel-card ${state.autoTravel ? "enabled" : ""}`}><div><p>單次自動跳躍</p><strong>{state.autoTravel ? "兔兔正在準備這一次跳躍" : "讓兔兔自動跳躍一次"}</strong><small>{state.autoTravel ? `完成「${DIMENSIONS[state.autoDimension].label}」旅程後自動停止` : "離開網站也會保留這一次旅程；回來時可收到明信片"}</small></div><button onClick={toggleAutoTravel}>{state.autoTravel ? "取消自動跳躍" : "安排一次自動跳躍"}</button></article>
       {state.companion && <article className="companion-card"><span>{state.companion.emoji}</span><div><p>旅行夥伴・{state.companion.name}</p><b>{state.companion.greeting}</b></div><button onClick={() => setState((s) => ({ ...s, companion: null }))}>知道了</button></article>}
       <article className="install-card"><div><p>想像一般 App 一樣開啟？</p><b>從 Chrome 加到主畫面，旅行資料仍保存在這台手機。</b></div><button onClick={requestInstall}>{deferredPrompt ? "立即安裝" : "查看方法"}</button></article>
     </section>}
