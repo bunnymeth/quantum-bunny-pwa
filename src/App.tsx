@@ -5,11 +5,11 @@ type Companion = (typeof companions)[number];
 type Postcard = { id: string; destinationId: string; returnedAt: number };
 type Journal = { id: string; destinationId: string; returnedAt: number; note: string; companion?: Companion };
 type Trip = { destinationId: string; startTime: number; duration: number; dimension: Dimension };
-type State = { points: number; pureEnergy: number; lastEnergyAt: number; postcards: Postcard[]; journal: Journal[]; trip: Trip | null; walls: Record<Exclude<Dimension, "normal">, boolean>; totalTrips: number; affirmation: string; lore: string; companion: Companion | null };
+type State = { points: number; pureEnergy: number; lastEnergyAt: number; postcards: Postcard[]; journal: Journal[]; trip: Trip | null; walls: Record<Exclude<Dimension, "normal">, boolean>; totalTrips: number; affirmation: string; lore: string; companion: Companion | null; autoTravel: boolean; autoDimension: Dimension; nextDepartureAt: number | null };
 
 const KEY = "quantum-bunny-pwa-state-v1";
 const ENERGY_RATE = 0.05;
-const initial = (): State => ({ points: 0, pureEnergy: 0, lastEnergyAt: Date.now(), postcards: [], journal: [], trip: null, walls: { cthulhu: false, scp: false, tiny: false }, totalTrips: 0, affirmation: affirmations[0], lore: "兔兔把善意收進星系圍巾，準備出發。", companion: null });
+const initial = (): State => ({ points: 0, pureEnergy: 0, lastEnergyAt: Date.now(), postcards: [], journal: [], trip: null, walls: { cthulhu: false, scp: false, tiny: false }, totalTrips: 0, affirmation: affirmations[0], lore: "兔兔把善意收進星系圍巾，準備出發。", companion: null, autoTravel: false, autoDimension: "normal", nextDepartureAt: null });
 const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)];
 const realPure = (state: State, now = Date.now()) => state.pureEnergy + Math.floor(Math.max(0, now - state.lastEnergyAt) / 1000 * ENERGY_RATE);
 const timeText = (secs: number) => secs >= 60 ? `${Math.ceil(secs / 60)} 分鐘` : `${Math.max(1, Math.ceil(secs))} 秒`;
@@ -17,7 +17,7 @@ const weather = () => { const hour = new Date().getHours(); return hour < 6 ? ["
 
 function App() {
   const [state, setState] = useState<State>(() => {
-    try { const raw = localStorage.getItem(KEY); if (!raw) return initial(); const saved = JSON.parse(raw) as Partial<State>; const base = { ...initial(), ...saved, walls: { ...initial().walls, ...saved.walls }, postcards: saved.postcards ?? [], journal: saved.journal ?? [] }; return { ...base, pureEnergy: Math.max(0, (base.pureEnergy ?? 0) + Math.floor((Date.now() - (base.lastEnergyAt ?? Date.now())) / 1000 * ENERGY_RATE)), lastEnergyAt: Date.now() }; } catch { return initial(); }
+    try { const raw = localStorage.getItem(KEY); if (!raw) return initial(); const saved = JSON.parse(raw) as Partial<State>; const base = { ...initial(), ...saved, walls: { ...initial().walls, ...saved.walls }, postcards: saved.postcards ?? [], journal: saved.journal ?? [], autoTravel: saved.autoTravel ?? false, autoDimension: saved.autoDimension ?? "normal", nextDepartureAt: saved.nextDepartureAt ?? null }; return { ...base, pureEnergy: Math.max(0, (base.pureEnergy ?? 0) + Math.floor((Date.now() - (base.lastEnergyAt ?? Date.now())) / 1000 * ENERGY_RATE)), lastEnergyAt: Date.now() }; } catch { return initial(); }
   });
   const [now, setNow] = useState(Date.now());
   const [page, setPage] = useState<"home" | "explore" | "album" | "journal">("home");
@@ -38,6 +38,11 @@ function App() {
   useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* local saving may be disabled */ } }, [state]);
   useEffect(() => { const handler = (event: Event) => { event.preventDefault(); setDeferredPrompt(event as BeforeInstallPromptEvent); }; window.addEventListener("beforeinstallprompt", handler); return () => window.removeEventListener("beforeinstallprompt", handler); }, []);
   useEffect(() => {
+    if (!state.autoTravel || state.trip || (state.nextDepartureAt !== null && now < state.nextDepartureAt)) return;
+    const started = startTrip(state.autoDimension, true);
+    if (!started) setState((s) => s.autoTravel && !s.trip ? { ...s, nextDepartureAt: Date.now() + 15000 } : s);
+  }, [now, state.autoTravel, state.autoDimension, state.nextDepartureAt, state.trip]);
+  useEffect(() => {
     if (!state.trip || now - state.trip.startTime < state.trip.duration * 1000) return;
     const completedTrip = state.trip;
     if (settledTripStarts.current.has(completedTrip.startTime)) return;
@@ -46,21 +51,33 @@ function App() {
     const companion = Math.random() < .35 ? pick(companions) : undefined;
     setState((s) => {
       if (!s.trip || s.trip.startTime !== completedTrip.startTime) return s;
-      return { ...s, trip: null, totalTrips: s.totalTrips + 1, postcards: [...s.postcards, { id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now() }], journal: [{ id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now(), note: `${destination.name} 的風景像一封慢慢展開的信。兔兔把「${destination.message}」小心寫在日誌裡。`, ...(companion ? { companion } : {}) }, ...s.journal].slice(0, 30), companion: companion ?? null, lore: pick(lore) };
+      return { ...s, trip: null, nextDepartureAt: s.autoTravel ? Date.now() + 5000 : null, totalTrips: s.totalTrips + 1, postcards: [...s.postcards, { id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now() }], journal: [{ id: `${Date.now()}-${Math.random()}`, destinationId: destination.id, returnedAt: Date.now(), note: `${destination.name} 的風景像一封慢慢展開的信。兔兔把「${destination.message}」小心寫在日誌裡。`, ...(companion ? { companion } : {}) }, ...s.journal].slice(0, 30), companion: companion ?? null, lore: pick(lore) };
     });
     setToast(`兔兔從 ${destination.name} 帶回一張新明信片！`);
   }, [now, state.trip]);
   useEffect(() => { if (!toast) return; const timer = window.setTimeout(() => setToast(null), 3200); return () => window.clearTimeout(timer); }, [toast]);
 
   const addEnergy = () => setState((s) => ({ ...s, points: s.points + 1, affirmation: pick(affirmations) }));
-  const startTrip = (target: Dimension) => {
-    if (state.trip) return setToast("兔兔已經在旅行中，等它寄回明信片吧。 ");
-    if (target !== "normal" && !state.walls[target]) return setToast("這個次元還隔著一面需要突破的牆。 ");
+  const startTrip = (target: Dimension, silent = false): boolean => {
+    const fail = (message: string) => { if (!silent) setToast(message); return false; };
+    if (state.trip) return fail("兔兔已經在旅行中，等它寄回明信片吧。 ");
+    if (target !== "normal" && !state.walls[target]) return fail("這個次元還隔著一面需要突破的牆。 ");
     const cost = DIMENSIONS[target].cost;
     const actualPure = realPure(state);
-    if (state.points < cost || actualPure < cost) return setToast(`需要 ${cost} 正能量與 ${cost} 純淨脫質。`);
+    if (state.points < cost || actualPure < cost) return fail(`需要 ${cost} 正能量與 ${cost} 純淨脫質。`);
     const options = destinations.filter((x) => x.dimension === target); const weighted = options.flatMap((x) => Array(x.rarity === 1 ? 5 : x.rarity === 2 ? 3 : 1).fill(x)); const destination = pick(weighted);
-    const at = Date.now(); setState((s) => ({ ...s, points: s.points - cost, pureEnergy: Math.max(0, realPure(s, at) - cost), lastEnergyAt: at, trip: { destinationId: destination.id, startTime: at, duration: destination.travelTime, dimension: target } })); setPage("home"); setToast(`量子跳躍成功，兔兔朝 ${destination.name} 前進。`);
+    const at = Date.now(); setState((s) => ({ ...s, points: s.points - cost, pureEnergy: Math.max(0, realPure(s, at) - cost), lastEnergyAt: at, trip: { destinationId: destination.id, startTime: at, duration: destination.travelTime, dimension: target }, nextDepartureAt: null }));
+    if (!silent) { setPage("home"); setToast(`量子跳躍成功，兔兔朝 ${destination.name} 前進。`); }
+    return true;
+  };
+  const toggleAutoTravel = () => {
+    if (state.autoTravel) {
+      setState((s) => ({ ...s, autoTravel: false, nextDepartureAt: null }));
+      setToast("自動旅行已暫停，兔兔回家後會等你安排下一趟旅程。");
+      return;
+    }
+    setState((s) => ({ ...s, autoTravel: true, autoDimension: dimension, nextDepartureAt: s.trip ? null : Date.now() }));
+    setToast(state.trip ? "自動旅行已開啟，兔兔回家休息後會再次出發。" : "自動旅行已開啟，兔兔準備出發。 ");
   };
   const unlock = (target: Exclude<Dimension, "normal">) => {
     const requirement = DIMENSIONS[target].unlock; const prerequisite = target === "cthulhu" || (target === "scp" ? state.walls.cthulhu : state.walls.scp);
@@ -82,6 +99,7 @@ function App() {
       <section className="section-heading"><div><p>旅行控制台</p><h2>選擇下一次跳躍</h2></div><span>{DIMENSIONS[dimension].icon} {DIMENSIONS[dimension].label}</span></section>
       <div className="dimension-chips">{(Object.keys(DIMENSIONS) as Dimension[]).map((item) => <button key={item} className={dimension === item ? `active ${DIMENSIONS[item].tone}` : ""} onClick={() => setDimension(item)} disabled={item !== "normal" && !state.walls[item]}>{DIMENSIONS[item].icon} {DIMENSIONS[item].label}</button>)}</div>
       <button className="leap-button" disabled={!!state.trip} onClick={() => startTrip(dimension)}><span>✦</span><div><b>量子跳躍</b><small>消耗 {DIMENSIONS[dimension].cost} 正能量＋脫質</small></div><i>›</i></button>
+      <article className={`auto-travel-card ${state.autoTravel ? "enabled" : ""}`}><div><p>旅行青蛙模式</p><strong>{state.autoTravel ? "兔兔會自己安排下一趟旅行" : "讓兔兔自己去旅行"}</strong><small>{state.autoTravel ? `回家後休息 5 秒，再前往「${DIMENSIONS[state.autoDimension].label}」` : "離開網站也會保留旅程；回來時可收到明信片"}</small></div><button onClick={toggleAutoTravel}>{state.autoTravel ? "暫停自動旅行" : "開啟自動旅行"}</button></article>
       {state.companion && <article className="companion-card"><span>{state.companion.emoji}</span><div><p>旅行夥伴・{state.companion.name}</p><b>{state.companion.greeting}</b></div><button onClick={() => setState((s) => ({ ...s, companion: null }))}>知道了</button></article>}
       <article className="install-card"><div><p>想像一般 App 一樣開啟？</p><b>從 Chrome 加到主畫面，旅行資料仍保存在這台手機。</b></div><button onClick={requestInstall}>{deferredPrompt ? "立即安裝" : "查看方法"}</button></article>
     </section>}
